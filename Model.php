@@ -7,19 +7,19 @@
  */
 
 class Model {
-    public static function RenderFormElementText($label, $id, $name, $value = ""){
+    public static function RenderFormElementText($label, $id, $name, $value = "", $placeholder=""){
         $returndata= '<div class="form-group">
                         <label>'.$label.'</label>
-                        <input required type="text" class="form-check-input" id="'.$id.'" name="'.$name.'" value="'.$value.'">
+                        <input required type="text" class="form-check-input col-md-12" id="'.$id.'" name="'.$name.'" placeholder="'.$placeholder.'" value="'.$value.'">
                       </div>
                     ';
         return $returndata;
     }
 
-    public static function RenderFormElementRichText($label, $id, $name, $value = ""){
+    public static function RenderFormElementRichText($label, $id, $name, $value = "", $placeholder=""){
         $returndata= '<div class="form-group type-richText">
                         <label>'.$label.'</label>
-                        <textarea required class="form-check-input" id="'.$id.'" name="'.$name.'">'.$value.'</textarea>
+                        <textarea required class="form-check-input col-md-12" id="'.$id.'" name="'.$name.'" placeholder="'.$placeholder.'">'.$value.'</textarea>
                       </div>
                     ';
         return $returndata;
@@ -64,31 +64,25 @@ class Model {
         return $returndata;
     }
 
-    public static function RenderFormElementMultiSelect($label,$id,$name,$values,$databasetabelname,$Columnnamewithvalues,$selected=""){
-        $decodedselected = json_decode($selected);
+    public static function RenderFormElementMultiSelect($label,$id,$name,$values,$required = 1,$databasetabelname,$Columnnamewithvalues,$selected=null){
+        if (is_null($selected) OR $selected == "empty"){
+            $selected = array('empty');
+        }
         $returndata = '<div class="form-group">
                         <label">'.$label.'</label>
-                            <select required multiple class="form-control" id="'.$id.'" name="'.$name.'[]">';
-        $vorigetypeid = 0;
+                            <select ';
+        if($required == 1){
+            $returndata .= 'required';
+        }
+        $returndata .=' multiple class="form-control" id="'.$id.'" name="'.$name.'[]">';
         foreach ($values as $value){
-            //checken of vorige typeid verschillend is van huidige
-            if ($vorigetypeid <> $value[2]) {
-                //vorige sluiten indien er 1 was
-                if ($vorigetypeid <> 0) {
-                    $returndata = $returndata . '</optgroup>';
-                }
-                //nieuwe openen
-                $returndata = $returndata . '<optgroup label="' . ipDb()->selectValue($Columnnamewithvalues, $databasetabelname, array('id' => $value[2])) . '">';
-                $vorigetypeid = $value[2];
-            }
             $returndata = $returndata.'<option value="'.$value[0].'"';
-            $selected = array($selected);
-            if (in_array($value[0],$decodedselected)){
+           if (in_array($value[0],$selected)){
                 $returndata = $returndata.' selected';
             }
             $returndata = $returndata.'>'.$value[1].'</option>';
         }
-        $returndata = $returndata.'</optgroup></select>
+        $returndata = $returndata.'</select>
                         </div>
                         ';
         return $returndata;
